@@ -4,12 +4,22 @@ from django.views.decorators.csrf import csrf_exempt
 from .forms import RobotForm
 import json
 
+from .models import Robot
+
 
 @csrf_exempt
 def create_robot(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        serial = f"{data.get('model')}-{data.get('version')}"
+        model = data.get('model')
+        version = data.get('version')
+
+        #Проверка на существующие модели в бд
+        if not Robot.objects.filter(model=model, version=version).exists():
+            response_data = {'error': f'Робот {model}-{version} не существует в системе'}
+            return JsonResponse(response_data, status=400)
+
+        serial = f"{model}-{version}"
         data['serial'] = serial
         form = RobotForm(data)
 
