@@ -46,7 +46,7 @@ def download_excel(request):
     today = datetime.today()
     start_of_week = today - timedelta(days=today.weekday() + 7)
 
-    models = Robot.objects.values('model').distinct()
+    models = Robot.objects.filter(created__gte=start_of_week).values('model').distinct()
 
     for model_info in models:
         model = model_info['model']
